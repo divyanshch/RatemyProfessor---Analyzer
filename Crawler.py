@@ -1,7 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 import matplotlib.pyplot as plt
+import numpy as np
+
 from mpl_toolkits.mplot3d import axes3d
+
 # these are libraries for the good and bad words
 positive = []
 negative = []
@@ -28,8 +31,8 @@ fo.close()
 final_list = []
 # The tid is the teacher id so we are starting with 10000 randomly picked id number
 tid = 10000
-number_teachers = 5
-number_teachers = 5 + tid
+number_teachers = 200
+number_teachers += tid
 # this while loop runs as long as you define it to
 while tid != number_teachers:
     # print tid to keep track
@@ -81,7 +84,7 @@ while tid != number_teachers:
                 "Overall Rating": html_rating[i - 1],
                 "Difficulty Rating": html_rating[i],
                 "Senti Rating": rating,
-                "Comment": html_comment[j].lstrip()
+                "Comment": html_comment[j].lstrip().rstrip()
             })
             rating = 0.0
             j += 1
@@ -94,22 +97,34 @@ plot_Overall_Rating = []
 plot_Difficulty_Rating = []
 
 # goes through the list and gives each rating to its appropriate field
+f = open('results.txt', 'a')
+
 for x in final_list:
-    if float(x['Overall Rating']) >=0:
+    if float(x['Overall Rating']) >= 0:
         plot_Senti_Rating.append(x['Senti Rating'])
         plot_Difficulty_Rating.append(float(x['Difficulty Rating']))
         plot_Overall_Rating.append(float(x['Overall Rating']))
-        print('Overall Rating \t','Difficulty Rating \t', 'Senti Rating \n')
-        print(x['Overall Rating'], '\t', x['Difficulty Rating'], '\t', x['Senti Rating'], '\n', x['Comment'], )
+        # print('Overall Rating \t', 'Difficulty Rating \t', 'Senti Rating \n')
+        # print(x['Overall Rating'], '\t', x['Difficulty Rating'], '\t', x['Senti Rating'], '\n', x['Comment'], )
+        f.write(
+            str(x['Overall Rating']) + '\t\t' + str(x['Difficulty Rating']) + '\t\t' + str(x['Senti Rating']) + '\t\t' +
+            x['Comment'] + '\n')
+# python will convert \n to os.linesep
 
+f.close()
 
-fig = plt.figure()
-ax1 = fig.add_subplot(111, projection='3d')
+x = np.corrcoef(plot_Overall_Rating, plot_Senti_Rating)
+print(x)
+print(len(final_list))
 
-ax1.set_xlabel('Overall Rating')
-ax1.set_ylabel('Difficulty Rating')
-ax1.set_zlabel('Senti Rating')
-
-ax1.scatter(plot_Overall_Rating, plot_Difficulty_Rating, plot_Senti_Rating)
+plt.scatter(plot_Overall_Rating, plot_Senti_Rating)
 plt.show()
-
+# fig = plt.figure()
+# ax1 = fig.add_subplot(111, projection='3d')
+#
+# ax1.set_xlabel('Overall Rating')
+# ax1.set_ylabel('Difficulty Rating')
+# ax1.set_zlabel('Senti Rating')
+#
+# ax1.scatter(plot_Overall_Rating, plot_Difficulty_Rating, plot_Senti_Rating)
+# plt.show()
